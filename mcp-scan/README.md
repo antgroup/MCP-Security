@@ -140,16 +140,6 @@ mcpscan scan https://github.com/smithery-ai/mcp-fetch.git
 
 ## 🧭 Scan Workflow
 
-```mermaid
-graph TD
-    A[Semgrep Taint Scan] --> B[LLM Metadata Analysis]
-    B --> C[Cross-file Flow Extraction]
-    C --> D[LLM Risk Judgment]
-    D --> E[Result Table + JSON Output]
-```
-
-### Visualized Workflow Screenshots
-
 | Stage | Screenshot |
 |-------|------------|
 | Stage 1: Semgrep Scan Result | ![semgrep-scan](image/semgrep.png) |

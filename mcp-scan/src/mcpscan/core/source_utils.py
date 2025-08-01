@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Tuple
 import logging
 from pathlib import Path
+import re
 
 def extract_code_blocks(markdown_text: str, lang: str | None = None) -> List[str]:
     fence_lang = lang if lang is not None else r"\w*"

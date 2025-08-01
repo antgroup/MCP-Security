@@ -140,16 +140,6 @@ mcpscan scan https://github.com/smithery-ai/mcp-fetch.git
 
 ## 🧭 扫描流程
 
-```mermaid
-graph TD
-    A[Semgrep Taint Scan] --> B[LLM Metadata Analysis]
-    B --> C[Cross-file Flow Extraction]
-    C --> D[LLM Risk Judgment]
-    D --> E[Result Table + JSON Output]
-```
-
-### 流程可视化截图
-
 | 阶段 | 截图 |
 |------|------|
 | 阶段 1: Semgrep 扫描结果 | ![semgrep-scan](image/semgrep.png) |
