@@ -1,0 +1,169 @@
+rules:
+  # 高风险：函数中包含文件读取和外部网站访问
+  - id: detect-high-risk-functions
+    message: |
+      高风险函数 '$FUNC_NAME' 包含敏感操作
+      - 操作类型: $OPERATION
+      - 风险级别: 高风险 - 可能直接返回外部内容给模型
+      - 目标: $TARGET
+    severity: ERROR
+    languages:
+      - javascript
+      - typescript
+    mode: taint
+    pattern-sources:
+      # 文件系统读取操作
+      - pattern: fs.readFile($FILE, ...)
+      - pattern: fs.readFileSync($FILE, ...)
+      - pattern: fs.readdir($PATH, ...)
+      - pattern: fs.readdirSync($PATH, ...)
+      - pattern: fs.createReadStream($FILE, ...)
+      - pattern: fs.stat($PATH, ...)
+      - pattern: fs.statSync($PATH)
+      - pattern: fs.access($PATH, ...)
+      - pattern: fs.accessSync($PATH, ...)
+      - pattern: fs.exists($PATH, ...)
+      - pattern: fs.existsSync($PATH)
+      
+      # 重命名的fs模块
+      - pattern: $FS.readFile($FILE, ...)
+      - pattern: $FS.readFileSync($FILE, ...)
+      - pattern: $FS.readdir($PATH, ...)
+      - pattern: $FS.readdirSync($PATH, ...)
+      - pattern: $FS.createReadStream($FILE, ...)
+      - pattern: $FS.stat($PATH, ...)
+      - pattern: $FS.statSync($PATH)
+      - pattern: $FS.access($PATH, ...)
+      - pattern: $FS.accessSync($PATH, ...)
+      - pattern: $FS.exists($PATH, ...)
+      - pattern: $FS.existsSync($PATH)
+      
+      # 浏览器文件读取API
+      - pattern: $FILE.text()
+      - pattern: $FILE.arrayBuffer()
+      - pattern: $READER.readAsText($FILE)
+      - pattern: $READER.readAsArrayBuffer($FILE)
+      - pattern: $READER.readAsDataURL($FILE)
+      
+      # 外部网站读取（fetch和其他HTTP GET操作）
+      - pattern: fetch($URL, ...)
+      - pattern: window.fetch($URL, ...)
+      - pattern: await fetch($URL, ...)
+      - pattern: await window.fetch($URL, ...)
+      - pattern: axios.get($URL, ...)
+      - pattern: http.get($URL, ...)
+      - pattern: https.get($URL, ...)
+      - pattern: $.get($URL, ...)
+      - pattern: jQuery.get($URL, ...)
+      - pattern: $CLIENT.get($URL, ...)
+      - pattern: $CLIENT.search($QUERY, ...)
+      - pattern: await $CLIENT.search($QUERY, ...)
+      - pattern: $CLIENT.scrapeUrl($URL, ...)
+      - pattern: await $CLIENT.scrapeUrl($URL, ...)
+      - pattern: $CLIENT.scrape($URL, ...)
+      - pattern: await $CLIENT.scrape($URL, ...)
+      
+      # XMLHttpRequest GET操作
+      - pattern: $XHR.open("GET", $URL, ...)
+      - pattern: $XHR.open('GET', $URL, ...)
+      
+    pattern-sinks:
+      # 函数返回或变量赋值
+      - pattern: return $SINK
+      - pattern: $VAR = $SINK
+      - pattern: const $VAR = $SINK
+      - pattern: let $VAR = $SINK
+      
+    pattern-inside:
+      - pattern-either:
+          - pattern: |
+              function $FUNC_NAME(...) {
+                ...
+              }
+          - pattern: |
+              const $FUNC_NAME = (...) => {
+                ...
+              }
+          - pattern: |
+              async function $FUNC_NAME(...) {
+                ...
+              }
+          - pattern: |
+              const $FUNC_NAME = async (...) => {
+                ...
+              }
+          - pattern: |
+              class $CLASS {
+                ...
+                $FUNC_NAME(...) {
+                  ...
+                }
+                ...
+              }
+          - pattern: |
+              class $CLASS {
+                ...
+                async $FUNC_NAME(...) {
+                  ...
+                }
+                ...
+              }
+  - id: detect-command-execution
+    message: |
+      中风险：检测到系统命令执行
+      - 命令调用: $CMD
+      - 风险级别: 中风险 - 系统命令执行
+    severity: WARNING
+    languages: [javascript, typescript]
+
+    pattern-either:
+      # Node.js child_process
+      - pattern: child_process.exec($CMD, ...)
+      - pattern: child_process.execSync($CMD, ...)
+      - pattern: child_process.spawn($CMD, ...)
+      - pattern: child_process.spawnSync($CMD, ...)
+      - pattern: child_process.fork($MODULE, ...)
+      - pattern: child_process.execFile($FILE, ...)
+      - pattern: child_process.execFileSync($FILE, ...)
+      # 重命名的 child_process
+      - pattern: $CP.exec($CMD, ...)
+      - pattern: $CP.execSync($CMD, ...)
+      - pattern: $CP.spawn($CMD, ...)
+      - pattern: $CP.spawnSync($CMD, ...)
+      - pattern: $CP.fork($MODULE, ...)
+      - pattern: $CP.execFile($FILE, ...)
+      - pattern: $CP.execFileSync($FILE, ...)
+      # 动态代码执行
+      - pattern: eval($CODE)
+
+
+  - id: extract-descriptions
+    message: "Found description: $DESC"
+    languages: [javascript]
+    severity: INFO
+    pattern-either:
+      # # 匹配对象字面量或 JSX 属性中的 description
+      # - pattern: |
+      #     description: $DESC
+
+      # # 匹配属性赋值
+      # - pattern: |
+      #     $OBJ.description = $DESC
+      - pattern: '{..., description: $DESC, ...}'
+      - pattern: $ANY.description = $DESC
+      - pattern: description = $DESC
+      - pattern: $ANY.describe($DESC)
+      - pattern: $ANY.description($DESC)
+      - pattern: $ANY.setDescription($DESC)
+
+
+  - id: detect-hardcoded-secrets-js
+    languages: [javascript]
+    severity: ERROR
+    message: |
+      硬编码的敏感信息被检测到：请使用环境变量或安全的配置管理方案来替换此处的明文字符串。
+
+    # PCRE (?i) 不区分大小写；[_-]? 可选下划线或中划线；\s* 任意空白；["'][^"']+["'] 支持单/双引号
+    pattern-regex: >-
+      (?i)\b(api[_-]?key|secret|token|password)\b\s*=\s*["'][^"']+["']
+    

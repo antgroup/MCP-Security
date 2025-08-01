@@ -1,0 +1,137 @@
+rules:
+################################################################################
+# ① 高风险：函数内包含文件读取或外部网络访问，结果直接流向返回值 / 变量
+################################################################################
+  - id: detect-high-risk-functions
+    message: |
+      高风险函数 '$FUNC_NAME' 包含敏感操作
+      - 操作类型: $OPERATION
+      - 风险级别: 高风险 - 可能直接返回外部内容给模型
+      - 目标: $TARGET
+    severity: ERROR
+    languages: [python]
+    mode: taint
+
+    ####################################################################
+    # 1️⃣  Source —— 文件系统读取或外部 HTTP 请求
+    ####################################################################
+    pattern-sources:
+      # ─── 文件系统读取 ────────────────────────────────────────────────
+      - pattern: open($FILE, ...)
+      - pattern: Path($FILE).read_text(...)
+      - pattern: Path($FILE).read_bytes(...)
+      - pattern: os.listdir($PATH)
+      - pattern: os.scandir($PATH)
+      - pattern: os.stat($PATH)
+      - pattern: os.path.exists($PATH)
+      - pattern: os.access($PATH, ...)
+      # 重命名/别名的 os / pathlib
+      - pattern: $OS.listdir($PATH)
+      - pattern: $OS.scandir($PATH)
+      - pattern: $OS.stat($PATH)
+      - pattern: $OS.path.exists($PATH)
+      - pattern: $P.read_text(...)
+      - pattern: $P.read_bytes(...)
+
+      # ─── 外部 HTTP 请求 ──────────────────────────────────────────────
+      - pattern: requests.get($URL, ...)
+      - pattern: requests.post($URL, ...)
+      - pattern: httpx.get($URL, ...)
+      - pattern: httpx.post($URL, ...)
+      - pattern: urllib.request.urlopens($URL, ...)
+      - pattern: aiohttp.request("GET", $URL, ...)
+      - pattern: aiohttp.request("POST", $URL, ...)
+      - pattern: aiohttp.ClientSession().get($URL, ...)
+      - pattern: aiohttp.ClientSession().post($URL, ...)
+      # 会话 / 客户端别名
+      - pattern: $SESSION.get($URL, ...)
+      - pattern: $SESSION.post($URL, ...)
+
+    ####################################################################
+    # 2️⃣  Sink —— 函数返回或赋值
+    ####################################################################
+    pattern-sinks:
+      - pattern: return $SINK
+      - pattern: $VAR = $SINK
+
+    ####################################################################
+    # 3️⃣  作用域 —— 仅匹配函数 / 方法体
+    ####################################################################
+    pattern-inside:
+      - pattern-either:
+          - pattern: |
+              def $FUNC_NAME(...):
+                ...
+          - pattern: |
+              async def $FUNC_NAME(...):
+                ...
+          - pattern: |
+              class $CLASS:
+                ...
+                def $FUNC_NAME(...):
+                  ...
+                ...
+          - pattern: |
+              class $CLASS:
+                ...
+                async def $FUNC_NAME(...):
+                  ...
+                ...
+
+################################################################################
+# ② 中风险：系统命令执行（os / subprocess / eval / exec）
+################################################################################
+  - id: detect-command-execution
+    message: |
+      中风险：检测到系统命令执行
+      - 命令调用: $CMD
+      - 风险级别: 中风险 - 系统命令执行
+    severity: WARNING
+    languages: [python]
+
+    pattern-either:
+      # ─── os / subprocess ────────────────────────────────────────────
+      - pattern: os.system($CMD)
+      - pattern: subprocess.call($CMD, ...)
+      - pattern: subprocess.run($CMD, ...)
+      - pattern: subprocess.Popen($CMD, ...)
+      - pattern: subprocess.check_output($CMD, ...)
+      # 重命名的 subprocess
+      - pattern: $SP.call($CMD, ...)
+      - pattern: $SP.run($CMD, ...)
+      - pattern: $SP.Popen($CMD, ...)
+      # pexpect 等
+      - pattern: pexpect.spawn($CMD, ...)
+      # ─── 动态代码执行 ────────────────────────────────────────────────
+      - pattern: eval($CODE)
+      - pattern: exec($CODE)
+      - pattern: compile($CODE, ...)
+
+  - id: extract-descriptions
+    message: "Found description: $DESC"
+    metadata:
+      category: "code-extraction"
+      description: ""
+      technology:
+        - python
+    severity: INFO
+    languages: [python]
+
+  
+    pattern-either:
+      - pattern: description = $DESC
+      - pattern: $FUNC(..., description=$DESC, ...)
+      - pattern: '{..., "description": $DESC, ...}'
+      - pattern: $ANY.description = $DESC
+      - pattern: setattr($ANY, "description", $DESC)
+
+  - id: detect-hardcoded-secrets-py
+    languages: [python]
+    severity: ERROR
+    message: |
+      硬编码的敏感信息被检测到：请使用环境变量或安全的配置管理方案来替换此处的明文字符串。
+ 
+    pattern-regex: >-
+      (?i)\b(api[_-]?key|secret|token|password)\b\s*=\s*["'][^"']+["']
+   
+  

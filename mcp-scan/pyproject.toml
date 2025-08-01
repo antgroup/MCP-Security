@@ -1,0 +1,27 @@
+[project]
+name        = "mcpscan"
+version     = "0.1.0"
+description = "Two‑stage Semgrep + LLM scanner for MCP security"
+authors     = [{name = "Your Name", email = "you@example.com"}]
+readme      = "README.md"
+requires-python = ">=3.9"
+
+dependencies = [
+  "typer[all] >=0.12",
+  "rich >=13.7",
+  "tqdm >=4.66",
+  "gitpython >=3.1",
+  "dotenv",
+  "semgrep",
+  "openai",
+]
+
+[project.scripts]
+mcpscan = "mcpscan.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
