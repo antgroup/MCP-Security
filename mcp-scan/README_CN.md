@@ -93,7 +93,7 @@ pip install -e .
 ### 检查版本
 ```bash
 mcpscan --version
-# mcpscan 1.2.3
+# mcpscan 0.1.0
 ```
 
 ### CLI 参数

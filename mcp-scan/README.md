@@ -93,7 +93,7 @@ After install, use `mcpscan` as a global CLI command.
 ### Basic Check
 ```bash
 mcpscan --version
-# mcpscan 1.2.3
+# mcpscan 0.1.0
 ```
 
 ### CLI Options
