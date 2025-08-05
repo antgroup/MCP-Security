@@ -1,6 +1,6 @@
 # MCPScan
 
-> **一款基于 MCP（Model Context Protocol）的多阶段 AI 智能体安全扫描器**
+> **一款针对 MCP（Model Context Protocol）的多阶段 AI 智能体安全扫描器**
 
 ![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache%202.0-green)
