@@ -105,7 +105,6 @@ mcpscan --version
 | `--monitor-desc / --no-monitor-desc` | 是否启用 LLM 元数据分析 | ✅ 启用 |
 | `--monitor-code / --no-monitor-code` | 是否启用代码流扫描 | ✅ 启用 |
 | `--save / --no-save` | 是否保存 JSON 输出 | ✅ 启用 |
-| `--lang <LANG>` | 强制指定语言 | auto |
 | `--out <FILE>` | 输出文件名 | triage_report.json |
 
 ### 命令
