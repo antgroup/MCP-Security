@@ -105,7 +105,6 @@ mcpscan --version
 | `--monitor-desc / --no-monitor-desc` | Enable LLM metadata analysis | ✅ Enabled |
 | `--monitor-code / --no-monitor-code` | Enable code flow scanning | ✅ Enabled |
 | `--save / --no-save` | Save JSON output | ✅ Enabled |
-| `--lang <LANG>` | Force language override | auto |
 | `--out <FILE>` | Output file name | triage_report.json |
 
 ### Commands
