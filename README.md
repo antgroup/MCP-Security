@@ -1,6 +1,6 @@
 # MCPScan
 
-> **A multi-stage security scanner for AI agents based on the Model Context Protocol (MCP).**
+> **A multi-stage security scanner for Model Context Protocol (MCP) based on the Agents.**
 
 ![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache%202.0-green)
