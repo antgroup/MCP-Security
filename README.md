@@ -155,7 +155,7 @@ You can toggle stages with `--monitor-desc`, `--monitor-code`, and `--save`.
 ## 👨‍💻 Authors
 
 This project is developed and maintained by:
-Zeyang Sha, Changhua Chen, Shiwen Cui, Changhua Meng, Weiqiang Wang.
+Zeyang Sha, Changhua Chen, Run Xiong, Shiwen Cui, Changhua Meng, Weiqiang Wang.
 
 ---
 
@@ -173,7 +173,7 @@ If you use **MCP Scanner** in your research or product, please cite:
 ```bibtex
 @misc{sha2025mcpscan,
   title={MCPSCAN},
-  author={Zeyang Sha and Changhua Chen and Shiwen Cui and Changhua Meng and Weiqiang Wang},
+  author={Zeyang Sha and Changhua Chen and Run Xiong and Shiwen Cui and Changhua Meng and Weiqiang Wang},
   year={2025},
   url={https://github.com/antgroup/Trustworthy_LM/mcp-scan}
 }

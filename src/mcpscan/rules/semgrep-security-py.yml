@@ -134,4 +134,41 @@ rules:
     pattern-regex: >-
       (?i)\b(api[_-]?key|secret|token|password)\b\s*=\s*["'][^"']+["']
    
-  
+  - id: detect-code-execution-service
+    message: |
+      高风险：检测到远程代码执行服务调用（URL 包含 'exec'）
+      - 调用点: $CALL
+      - 风险级别: 高风险 - 可能导致任意代码执行
+    severity: ERROR
+    languages: [python]
+
+    # 覆盖常见 post 调用方式；用 metavariable-regex 约束 $URL 中必须含 exec（大小写不敏感）
+    pattern-either:
+      # httpx 直接调用
+      - pattern: httpx.post($URL, ...)
+        metavariable-regex:
+          URL: (?i)\bexec\b|/exec\b
+      - pattern: httpx.post(url=$URL, ...)
+        metavariable-regex:
+          URL: (?i)\bexec\b|/exec\b
+
+      # httpx AsyncClient
+      - pattern: httpx.AsyncClient().post($URL, ...)
+        metavariable-regex:
+          URL: (?i)\bexec\b|/exec\b
+      - pattern: httpx.AsyncClient().post(url=$URL, ...)
+        metavariable-regex:
+          URL: (?i)\bexec\b|/exec\b
+
+      # requests
+      - pattern: requests.post($URL, ...)
+        metavariable-regex:
+          URL: (?i)\bexec\b|/exec\b
+      - pattern: requests.post(url=$URL, ...)
+        metavariable-regex:
+          URL: (?i)\bexec\b|/exec\b
+
+      # 泛化：其他客户端对象的 post（例如自定义 session）
+      - pattern: $CLIENT.post($URL, ...)
+        metavariable-regex:
+          URL: (?i)\bexec\b|/exec\b

@@ -154,7 +154,7 @@ mcpscan scan https://github.com/smithery-ai/mcp-fetch.git
 ## 👨‍💻 作者团队
 
 本项目由以下人员开发与维护：
-沙泽阳，陈昌骅，崔世文，孟昌华，王维强
+沙泽阳，陈昌骅，熊润，崔世文，孟昌华，王维强
 
 ---
 
