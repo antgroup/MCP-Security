@@ -172,7 +172,7 @@ mcpscan scan https://github.com/smithery-ai/mcp-fetch.git
 ```bibtex
 @misc{sha2025mcpscan,
   title={MCPSCAN},
-  author={Zeyang Sha and Changhua Chen and Shiwen Cui and Changhua Meng and Weiqiang Wang},
+  author={Zeyang Sha and Changhua Chen and Run Xiong and Shiwen Cui and Changhua Meng and Weiqiang Wang},
   year={2025},
   url={https://github.com/antgroup/Trustworthy_LM/mcp-scan}
 }
